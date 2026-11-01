@@ -1,0 +1,97 @@
+/* ═══════════════════════════════════════════
+   MetroSentry AI — Base / Reset
+   ═══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img, video, canvas { display: block; max-width: 100%; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan-dim); }
+
+/* focus-visible */
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+/* Helper text */
+.helper-text { color: var(--text-secondary); font-size: .85rem; }
+.subtext    { color: var(--text-muted); font-size: .8rem; margin-top: .25rem; }
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+/* Simulation label */
+.sim-label {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--amber);
+  background: rgba(245,158,11,.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(245,158,11,.25);
+}
+
+/* View switching */
+.view { display: none; padding: 1.5rem; }
+.view.active { display: block; }
+
+/* Main content */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  transition: margin-left var(--duration) var(--ease);
+  display: flex;
+  flex-direction: column;
+}
+
+body.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-w-collapsed);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+}
+.empty-state .empty-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 1rem;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content { margin-left: 0; }
+  .view { padding: 1rem; }
+}
+

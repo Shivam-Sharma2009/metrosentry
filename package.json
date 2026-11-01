@@ -1,0 +1,21 @@
+{
+  "name": "metrosentry",
+  "version": "1.0.0",
+  "description": "MetroSentry AI — Autonomous Metro Safety Intelligence Platform",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "keywords": [
+    "metro",
+    "safety",
+    "ai",
+    "gemma",
+    "gemini"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}

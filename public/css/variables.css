@@ -1,0 +1,53 @@
+/* ═══════════════════════════════════════════
+   MetroSentry AI — Design Tokens
+   ═══════════════════════════════════════════ */
+:root {
+  /* ── Palette ── */
+  --bg-primary:     #0a0f1e;
+  --bg-secondary:   #111827;
+  --bg-card:        #1a2236;
+  --bg-card-hover:  #1f2a42;
+  --bg-input:       #0d1424;
+  --bg-sidebar:     #0c1226;
+
+  --border:         #1e2d4a;
+  --border-light:   #2a3c5e;
+
+  --cyan:           #22d3ee;
+  --cyan-dim:       #0e7490;
+  --teal:           #2dd4bf;
+  --blue:           #3b82f6;
+  --indigo:         #6366f1;
+  --amber:          #f59e0b;
+  --amber-dim:      #92400e;
+  --red:            #ef4444;
+  --red-dim:        #991b1b;
+  --green:          #22c55e;
+  --green-dim:      #166534;
+
+  --text-primary:   #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+
+  /* ── Sizing ── */
+  --sidebar-w:      260px;
+  --sidebar-w-collapsed: 64px;
+  --topbar-h:       56px;
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      14px;
+
+  /* ── Typography ── */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,.3);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg:  0 8px 30px rgba(0,0,0,.5);
+
+  /* ── Transitions ── */
+  --ease: cubic-bezier(.4,0,.2,1);
+  --duration: 200ms;
+}
+

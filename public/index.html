@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111f">
+  <title>MetroSentry AI | Operations Control Room</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/camera.css">
+  <link rel="stylesheet" href="/css/incidents.css">
+  <link rel="stylesheet" href="/css/doors.css">
+  <link rel="stylesheet" href="/css/analytics.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/phase1.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="brand-text"><strong>MetroSentry</strong><small>Safety intelligence</small></div>
+    </div>
+    <div class="sidebar-context">
+      <span class="eyebrow">Operations console</span>
+      <span class="context-station">Delhi network simulation</span>
+    </div>
+    <nav aria-label="Primary navigation">
+      <ul class="nav-list">
+        <li class="nav-item active" data-view="dashboard"><span class="nav-icon">⌂</span><span class="nav-label">Overview</span></li>
+        <li class="nav-item" data-view="camera"><span class="nav-icon">◉</span><span class="nav-label">AI Vision Monitor</span></li>
+        <li class="nav-item" data-view="crowd"><span class="nav-icon">◎</span><span class="nav-label">Crowd Intelligence</span></li>
+        <li class="nav-item" data-view="doors"><span class="nav-icon">▣</span><span class="nav-label">Platform Door Simulator</span></li>
+        <li class="nav-item" data-view="incidents"><span class="nav-icon">!</span><span class="nav-label">Incident Management</span><span class="nav-badge" id="incident-count-badge" data-count="0">0</span></li>
+        <li class="nav-item" data-view="analytics"><span class="nav-icon">▥</span><span class="nav-label">Analytics</span></li>
+        <li class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span class="nav-label">Settings</span></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="system-status"><span class="status-dot" id="system-status-dot"></span><span id="system-status-text">Connecting…</span></div>
+      <div class="sidebar-disclaimer">Simulation only · No live metro connection</div>
+    </div>
+  </aside>
+
+  <main id="main-content" class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation">☰</button>
+      <div class="topbar-heading"><span class="eyebrow">Metro operations / control room</span><h1 id="topbar-title">Overview</h1></div>
+      <div class="topbar-controls">
+        <label class="compact-field">Station
+          <select id="header-station"><option>Rajiv Chowk</option><option>Kashmere Gate</option><option>Huda City Centre</option><option>Hauz Khas</option></select>
+        </label>
+        <label class="compact-field">Platform
+          <select id="header-platform"><option>Platform 01</option><option>Platform 02</option><option>Concourse</option></select>
+        </label>
+        <span class="topbar-clock" id="topbar-clock"></span>
+        <span class="topbar-sim-badge">PROTOTYPE · SIMULATION</span>
+      </div>
+    </header>
+
+    <section id="view-dashboard" class="view active">
+      <div class="page-intro"><div><span class="eyebrow">Live operational picture</span><h2>Station overview</h2></div><span class="live-pill"><i></i> Local telemetry active</span></div>
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-icon kpi-icon--blue">Σ</div><div class="kpi-body"><span class="kpi-value" id="kpi-total-incidents">0</span><span class="kpi-label">Total incidents</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon kpi-icon--amber">!</div><div class="kpi-body"><span class="kpi-value" id="kpi-active-incidents">0</span><span class="kpi-label">Active incidents</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon kpi-icon--red">↯</div><div class="kpi-body"><span class="kpi-value" id="kpi-critical-incidents">0</span><span class="kpi-label">Critical incidents</span></div></div>
+        <div class="kpi-card"><div class="kpi-icon kpi-icon--green">✓</div><div class="kpi-body"><span class="kpi-value" id="kpi-resolved">0</span><span class="kpi-label">Resolved incidents</span></div></div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="panel panel--wide"><div class="panel-heading"><div><span class="eyebrow">Visual perimeter</span><h3>Camera monitoring</h3></div><button class="btn btn--outline btn--sm" data-go-view="camera">Open vision monitor</button></div><div class="camera-grid" id="dashboard-camera-grid"></div></div>
+        <div class="panel"><div class="panel-heading"><div><span class="eyebrow">Occupancy signal</span><h3>Crowd monitoring</h3></div><span class="panel-status panel-status--idle">Awaiting analysis</span></div><div class="crowd-summary"><div class="density-ring"><strong>—</strong><span>density</span></div><div><h4>Waiting for camera analysis</h4><p>Density and flow metrics will appear when an image is analyzed by the connected AI service.</p></div></div></div>
+        <div class="panel"><div class="panel-heading"><div><span class="eyebrow">Platform safety</span><h3>Door status</h3></div><button class="btn btn--outline btn--sm" data-go-view="doors">Open simulator</button></div><div class="door-summary" id="dashboard-door-summary"></div></div>
+      </div>
+      <div class="section-header"><div><span class="eyebrow">Operator queue</span><h3>Recent incident feed</h3></div><button class="btn btn--outline btn--sm" data-go-view="incidents">View all incidents</button></div>
+      <div class="incident-list" id="dashboard-incident-list"></div>
+    </section>
+
+    <section id="view-camera" class="view">
+      <div class="page-intro"><div><span class="eyebrow">Visual safety review</span><h2>AI Vision Monitor</h2><p class="helper-text">Capture or upload evidence locally. Phase 1 does not invent detection results.</p></div><span class="sim-label">SIMULATION ONLY</span></div>
+      <div class="camera-analysis-layout">
+        <div class="camera-input-panel panel"><div class="panel-heading"><div><span class="eyebrow">Input source</span><h3>Evidence capture</h3></div></div>
+          <div class="input-tabs"><button class="input-tab active" data-target="upload-panel">Upload image</button><button class="input-tab" data-target="capture-panel">Browser camera</button></div>
+          <div id="upload-panel" class="input-panel active"><div class="drop-zone" id="drop-zone"><span class="drop-icon">↑</span><strong>Drop a station image here</strong><span>PNG, JPG, WEBP · maximum 8 MB</span><label class="btn btn--primary btn--sm" for="file-input">Choose file</label><input type="file" id="file-input" accept="image/png,image/jpeg,image/webp" hidden></div></div>
+          <div id="capture-panel" class="input-panel"><div class="camera-preview-wrapper"><video id="camera-video" autoplay playsinline></video><span class="camera-placeholder" id="camera-placeholder">Camera preview inactive</span><canvas id="camera-canvas" hidden></canvas></div><div class="camera-controls"><button class="btn btn--primary" id="btn-start-camera">Start camera</button><button class="btn btn--accent" id="btn-capture" disabled>Capture snapshot</button><button class="btn btn--outline" id="btn-stop-camera" disabled>Stop camera</button></div><p class="form-message" id="camera-message" role="status"></p></div>
+          <div class="image-preview-container" id="image-preview-container" hidden><img id="image-preview" alt="Selected station evidence preview"><button class="btn btn--danger btn--sm preview-remove" id="btn-remove-image" aria-label="Remove image">×</button></div>
+          <div class="analysis-controls"><label for="station-select">Station context</label><select id="station-select"><option>Rajiv Chowk</option><option>Kashmere Gate</option><option>Huda City Centre</option><option>Hauz Khas</option><option>Custom</option></select><input type="text" id="custom-station" placeholder="Enter station name" hidden><button class="btn btn--primary btn--lg" id="btn-analyze" disabled>Analyze image <span class="btn-loader" hidden></span></button></div>
+        </div>
+        <div class="analysis-results-panel panel"><div class="panel-heading"><div><span class="eyebrow">Model response</span><h3>Analysis result</h3></div><span class="panel-status panel-status--pending">Gemma AI pending</span></div><div id="analysis-results" class="results-container"><div class="empty-state"><span class="empty-icon">◌</span><p>Upload or capture an image to prepare an analysis.</p><p class="subtext">Gemma AI integration pending</p></div></div></div>
+      </div>
+    </section>
+
+    <section id="view-crowd" class="view"><div class="page-intro"><div><span class="eyebrow">Occupancy intelligence</span><h2>Crowd Intelligence</h2><p class="helper-text">Density monitoring will be populated from verified camera analysis.</p></div><span class="sim-label">NO LIVE FEED</span></div><div class="crowd-panel panel"><div class="crowd-visual"><div class="density-ring density-ring--large"><strong>—</strong><span>density</span></div><div><span class="eyebrow">Current platform signal</span><h3>Waiting for camera analysis</h3><p>There is no crowd estimate yet. Upload or capture a platform image in AI Vision Monitor when the backend integration is available.</p><button class="btn btn--primary" data-go-view="camera">Go to vision monitor</button></div></div><div class="crowd-metrics"><div><span>Occupancy</span><strong>—</strong></div><div><span>Flow direction</span><strong>—</strong></div><div><span>Confidence</span><strong>—</strong></div></div></div></section>
+
+    <section id="view-doors" class="view"><div class="page-intro"><div><span class="eyebrow">Hardware behavior lab</span><h2>Platform Door Simulator</h2><p class="helper-text">Each state change is local and visibly marked as simulated.</p></div><span class="sim-label">SIMULATION ONLY</span></div><div class="sim-disclaimer-banner">⚠ This prototype does not connect to or control any actual platform screen doors.</div><div class="section-header"><h3>Platform 01 · Door bank</h3><div class="door-master-controls"><button class="btn btn--primary btn--sm" id="btn-open-all-doors">Open all</button><button class="btn btn--outline btn--sm" id="btn-close-all-doors">Close all</button><button class="btn btn--danger btn--sm" id="btn-emergency-doors">Emergency lock</button></div></div><div class="door-platform" id="door-platform"></div><div class="door-legend"><span>● Open</span><span>● Closed</span><span>● Obstruction</span><span>● Sensor fault</span></div></section>
+
+    <section id="view-incidents" class="view"><div class="page-intro"><div><span class="eyebrow">Event response</span><h2>Incident Management</h2><p class="helper-text">All records are stored in this browser and generated test incidents are marked simulated.</p></div><span class="sim-label">LOCAL STORAGE</span></div><div class="incident-toolbar"><label>Severity <select id="severity-filter"><option value="all">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label><label>Status <select id="status-filter"><option value="all">All statuses</option><option value="new">New</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option></select></label><button class="btn btn--outline btn--sm" id="btn-clear-filters">Reset filters</button></div><div class="incident-list incident-list--full" id="incident-list-full"></div></section>
+
+    <section id="view-analytics" class="view"><div class="page-intro"><div><span class="eyebrow">Operational evidence</span><h2>Analytics</h2><p class="helper-text">Calculated from actual incident records in LocalStorage.</p></div><span class="sim-label">LIVE LOCAL CALCULATION</span></div><div class="analytics-grid"><div class="analytics-card"><h3>Incident totals</h3><div class="analytics-big-number" id="analytics-total">0</div><div class="analytics-breakdown" id="analytics-breakdown"></div></div><div class="analytics-card"><h3>By severity</h3><div class="bar-list" id="analytics-severity"></div></div><div class="analytics-card"><h3>By status</h3><div class="bar-list" id="analytics-status"></div></div><div class="analytics-card analytics-card--wide"><h3>By incident type</h3><div class="bar-list bar-list--columns" id="analytics-type"></div></div></div></section>
+
+    <section id="view-settings" class="view"><div class="page-intro"><div><span class="eyebrow">Console configuration</span><h2>Settings</h2><p class="helper-text">Phase 1 preferences are intentionally limited to the local prototype.</p></div></div><div class="settings-grid"><div class="panel setting-row"><div><h3>Prototype mode</h3><p>Keep all activity clearly labelled as simulated.</p></div><span class="toggle active">ON</span></div><div class="panel setting-row"><div><h3>Data retention</h3><p>Incident records persist in this browser's LocalStorage.</p></div><span class="setting-value">LOCAL</span></div><div class="panel setting-row"><div><h3>AI model connection</h3><p>Gemma AI integration pending.</p></div><span class="panel-status panel-status--pending">PENDING</span></div></div></section>
+  </main>
+  <div id="toast-container" class="toast-container"></div>
+  <div id="modal-overlay" class="modal-overlay" hidden><div class="modal"><div class="modal-header"><h3 id="modal-title"></h3><button class="modal-close" id="modal-close">×</button></div><div class="modal-body" id="modal-body"></div><div class="modal-footer" id="modal-footer"></div></div></div>
+  <script src="/js/utils.js"></script><script src="/js/store.js"></script><script src="/js/navigation.js"></script><script src="/js/camera.js"></script><script src="/js/analysis.js"></script><script src="/js/incidents.js"></script><script src="/js/doors.js"></script><script src="/js/analytics.js"></script><script src="/js/dashboard.js"></script><script src="/js/app.js"></script>
+</body>
+</html>

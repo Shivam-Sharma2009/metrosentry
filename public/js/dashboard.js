@@ -1,0 +1,6 @@
+const Dashboard = {
+  feeds: ['Rajiv Chowk · Platform 01', 'Rajiv Chowk · Platform 02', 'Kashmere Gate · Concourse', 'Hauz Khas · Platform 01'],
+  init() { this.renderFeeds(); this.update(); window.addEventListener('incidents-changed', () => this.update()); window.addEventListener('doors-changed', () => this.update()); window.addEventListener('analyses-changed', () => this.update()); },
+  renderFeeds() { document.getElementById('dashboard-camera-grid').innerHTML = this.feeds.map(feed => `<div class="camera-feed-card"><div class="camera-feed-placeholder"><span class="feed-grid"></span><span>SIMULATED FEED</span></div><div class="camera-feed-label"><span>${Utils.esc(feed)}</span><span class="camera-feed-status sim">standby</span></div></div>`).join(''); },
+  update() { const incidents = Store.getIncidents(); document.getElementById('kpi-total-incidents').textContent = incidents.length; document.getElementById('kpi-active-incidents').textContent = incidents.filter(item => item.status !== 'resolved').length; document.getElementById('kpi-critical-incidents').textContent = incidents.filter(item => item.severity === 'critical' && item.status !== 'resolved').length; document.getElementById('kpi-resolved').textContent = incidents.filter(item => item.status === 'resolved').length; }
+};

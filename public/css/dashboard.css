@@ -1,0 +1,99 @@
+/* ═══════════════════════════════════════════
+   MetroSentry AI — Dashboard
+   ═══════════════════════════════════════════ */
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  height: var(--topbar-h);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 24px; height: 24px;
+}
+.sidebar-toggle svg { width: 100%; height: 100%; }
+@media (max-width: 768px) {
+  .sidebar-toggle { display: block; }
+}
+.topbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.topbar-clock {
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  color: var(--text-secondary);
+}
+.topbar-sim-badge {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+/* KPI Row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: border-color var(--duration) var(--ease);
+}
+.kpi-card:hover { border-color: var(--border-light); }
+.kpi-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-icon svg { width: 22px; height: 22px; }
+.kpi-icon--blue   { background: rgba(59,130,246,.15); color: var(--blue); }
+.kpi-icon--amber  { background: rgba(245,158,11,.15); color: var(--amber); }
+.kpi-icon--green  { background: rgba(34,197,94,.15);  color: var(--green); }
+.kpi-icon--cyan   { background: rgba(34,211,238,.15); color: var(--cyan); }
+
+.kpi-body { display: flex; flex-direction: column; }
+.kpi-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-family: var(--font-mono);
+}
+.kpi-label {
+  font-size: .75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: .15rem;
+}
+

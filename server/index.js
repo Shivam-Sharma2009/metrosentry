@@ -74,8 +74,25 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
     };
     res.json({ success: true, model: MODEL, station, analysis, generatedAt: new Date().toISOString() });
   } catch (error) {
-    console.error('[Gemma analysis]', error.message);
-    res.status(502).json({ error: 'Image analysis failed. Check API key, model availability, and server logs.' });
+    // Log useful diagnostics locally; never log the API key or request image.
+    const diagnostic = {
+      name: error?.name || 'Error',
+      message: String(error?.message || 'Unknown Google GenAI error').slice(0, 1200),
+      status: error?.status || error?.statusCode || null,
+      code: error?.code || null
+    };
+    console.error('[Gemma analysis failed]', diagnostic);
+    if (error?.stack) console.error(error.stack);
+
+    // Return the provider's error message so the UI/Network response can help
+    // identify invalid keys, unavailable models, quota limits, and bad requests.
+    const details = diagnostic.message.replace(/\s+/g, ' ').trim();
+    res.status(502).json({
+      error: 'Gemma image analysis failed.',
+      details,
+      providerStatus: diagnostic.status,
+      providerCode: diagnostic.code
+    });
   }
 });
 

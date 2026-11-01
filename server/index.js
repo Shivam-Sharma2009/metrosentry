@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
+const fs = require('node:fs/promises');
+const os = require('node:os');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,18 +50,37 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
   const station = typeof req.body.station === 'string' ? req.body.station.slice(0, 100) : 'Unspecified station';
   const prompt = `Review this metro-station image for visible safety concerns only: platform-edge obstacles, a person apparently fallen or in an unsafe position, unusually dense crowding, visible smoke/fire, or platform-door obstruction. Do not invent events or infer facts outside the frame. If unclear, state uncertainty and use riskLevel unknown. This is advisory triage, not a certified safety assessment. Return only JSON with fields: riskLevel (low|medium|high|critical|unknown), summary, observations (string array), category, confidence (0-100 subjective estimate), recommendedAction, limitations (string array). Always require human review. Station context: ${station}.`;
 
+  let tempDir;
   try {
-    const { GoogleGenAI } = await import('@google/genai');
+    const { GoogleGenAI, createUserContent, createPartFromUri } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    // Use Google's documented Files API image flow for Gemma 4.
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'metrosentry-'));
+    const extension = req.file.mimetype === 'image/png' ? '.png' : req.file.mimetype === 'image/webp' ? '.webp' : '.jpg';
+    const imagePath = path.join(tempDir, `evidence${extension}`);
+    await fs.writeFile(imagePath, req.file.buffer);
+    const uploadedImage = await ai.files.upload({
+      file: imagePath,
+      config: { mimeType: req.file.mimetype }
+    });
+
     const response = await ai.models.generateContent({
       model: MODEL,
-      contents: [
-        { inlineData: { mimeType: req.file.mimetype, data: req.file.buffer.toString('base64') } },
+      contents: createUserContent([
+        createPartFromUri(uploadedImage.uri, uploadedImage.mimeType),
         prompt
-      ],
-      config: { temperature: 0.2, maxOutputTokens: 1200, responseMimeType: 'application/json' }
+      ]),
+      // Avoid responseMimeType: JSON mode can be rejected by some hosted model routes.
+      config: { temperature: 0.2, maxOutputTokens: 1200 }
     });
-    const parsed = JSON.parse(response.text || '{}');
+
+    const rawText = String(response.text || '').trim();
+    const jsonText = rawText.replace(/^\`\`\`(?:json)?\s*/i, '').replace(/\s*\`\`\`$/, '');
+    const jsonStart = jsonText.indexOf('{');
+    const jsonEnd = jsonText.lastIndexOf('}');
+    if (jsonStart < 0 || jsonEnd <= jsonStart) throw new Error('Gemma returned no JSON object. Raw response: ' + rawText.slice(0, 500));
+    const parsed = JSON.parse(jsonText.slice(jsonStart, jsonEnd + 1));
     const risks = ['low', 'medium', 'high', 'critical', 'unknown'];
     const list = value => Array.isArray(value) ? value.filter(x => typeof x === 'string').slice(0, 8).map(x => x.slice(0, 400)) : [];
     const analysis = {
@@ -93,6 +114,8 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
       providerStatus: diagnostic.status,
       providerCode: diagnostic.code
     });
+  } finally {
+    if (tempDir) await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
   }
 });
 

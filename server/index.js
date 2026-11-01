@@ -51,28 +51,35 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
   const prompt = `Review this metro-station image for visible safety concerns only: platform-edge obstacles, a person apparently fallen or in an unsafe position, unusually dense crowding, visible smoke/fire, or platform-door obstruction. Do not invent events or infer facts outside the frame. If unclear, state uncertainty and use riskLevel unknown. This is advisory triage, not a certified safety assessment. Return only JSON with fields: riskLevel (low|medium|high|critical|unknown), summary, observations (string array), category, confidence (0-100 subjective estimate), recommendedAction, limitations (string array). Always require human review. Station context: ${station}.`;
 
   let tempDir;
+  let apiStage = 'initializing';
   try {
-    const { GoogleGenAI, createUserContent, createPartFromUri } = await import('@google/genai');
+    const { GoogleGenAI } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-    // Use Google's documented Files API image flow for Gemma 4.
+    // Use Google's Files API image flow for Gemma 4.
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'metrosentry-'));
     const extension = req.file.mimetype === 'image/png' ? '.png' : req.file.mimetype === 'image/webp' ? '.webp' : '.jpg';
     const imagePath = path.join(tempDir, `evidence${extension}`);
     await fs.writeFile(imagePath, req.file.buffer);
+    apiStage = 'file_upload';
     const uploadedImage = await ai.files.upload({
       file: imagePath,
       config: { mimeType: req.file.mimetype }
     });
+    if (!uploadedImage?.uri || !uploadedImage?.mimeType) {
+      throw new Error('Google Files API did not return a usable file URI and MIME type.');
+    }
 
+    apiStage = 'generate_content';
     const response = await ai.models.generateContent({
       model: MODEL,
-      contents: createUserContent([
-        createPartFromUri(uploadedImage.uri, uploadedImage.mimeType),
-        prompt
-      ]),
-      // Avoid responseMimeType: JSON mode can be rejected by some hosted model routes.
-      config: { temperature: 0.2, maxOutputTokens: 1200 }
+      contents: [{
+        role: 'user',
+        parts: [
+          { fileData: { mimeType: uploadedImage.mimeType, fileUri: uploadedImage.uri } },
+          { text: prompt }
+        ]
+      }]
     });
 
     const rawText = String(response.text || '').trim();
@@ -97,8 +104,9 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
   } catch (error) {
     // Log useful diagnostics locally; never log the API key or request image.
     const diagnostic = {
+      stage: apiStage,
       name: error?.name || 'Error',
-      message: String(error?.message || 'Unknown Google GenAI error').slice(0, 1200),
+      message: String(error?.message || 'Unknown Google GenAI error').slice(0, 1600),
       status: error?.status || error?.statusCode || null,
       code: error?.code || null
     };
@@ -108,11 +116,15 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
     // Return the provider's error message so the UI/Network response can help
     // identify invalid keys, unavailable models, quota limits, and bad requests.
     const details = diagnostic.message.replace(/\s+/g, ' ').trim();
+    // Google SDK sometimes places the provider JSON inside Error.message.
+    let providerError = null;
+    try { providerError = JSON.parse(details)?.error || null; } catch {}
     res.status(502).json({
       error: 'Gemma image analysis failed.',
-      details,
-      providerStatus: diagnostic.status,
-      providerCode: diagnostic.code
+      stage: apiStage,
+      details: providerError?.message || details,
+      providerStatus: providerError?.code || diagnostic.status,
+      providerCode: providerError?.status || diagnostic.code
     });
   } finally {
     if (tempDir) await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});

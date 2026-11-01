@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
-const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +49,7 @@ app.post('/api/analyze/frame', upload.single('image'), async (req, res) => {
   const prompt = `Review this metro-station image for visible safety concerns only: platform-edge obstacles, a person apparently fallen or in an unsafe position, unusually dense crowding, visible smoke/fire, or platform-door obstruction. Do not invent events or infer facts outside the frame. If unclear, state uncertainty and use riskLevel unknown. This is advisory triage, not a certified safety assessment. Return only JSON with fields: riskLevel (low|medium|high|critical|unknown), summary, observations (string array), category, confidence (0-100 subjective estimate), recommendedAction, limitations (string array). Always require human review. Station context: ${station}.`;
 
   try {
+    const { GoogleGenAI } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
       model: MODEL,
